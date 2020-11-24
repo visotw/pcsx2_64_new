@@ -372,7 +372,7 @@ s32 USBfreeze(int mode, freezeData* data)
 
 		s8* ptr = data->data + sizeof(USBfreezeData);
 		// Load the state of the attached devices
-		if ((long unsigned int)data->size != sizeof(USBfreezeData) + usbd.device[0].size + usbd.device[1].size + 8192)
+		if ((long unsigned int)data->size < sizeof(USBfreezeData) + usbd.device[0].size + usbd.device[1].size + 8192)
 			return -1;
 
 		//TODO Subsequent save state loadings make USB "stall" for n seconds since previous load
@@ -414,6 +414,7 @@ s32 USBfreeze(int mode, freezeData* data)
 				}
 
 				proxy = regInst.Device(index);
+				conf.Port[i] = proxy->TypeName();
 				usb_device[i] = CreateDevice(index, i);
 				USBAttach(i, usb_device[i], index != DEVTYPE_MSD);
 			}
@@ -575,24 +576,7 @@ s32 USBfreeze(int mode, freezeData* data)
 	}
 	else if (mode == FREEZE_SIZE)
 	{
-		RegisterDevice& regInst = RegisterDevice::instance();
-		data->size = sizeof(USBfreezeData);
-		for (int i = 0; i < 2; i++)
-		{
-			//TODO check that current created usb device and conf.Port[n] are the same
-			auto proxy = regInst.Device(conf.Port[i]);
-
-			if (proxy)
-				data->size += proxy->Freeze(FREEZE_SIZE, usb_device[i], nullptr);
-		}
-
-		// PCSX2 queries size before load too, so can't use actual packet length which varies :(
-		data->size += 8192; // qemu_ohci->usb_packet.actual_length;
-		if (qemu_ohci->usb_packet.actual_length > 8192)
-		{
-			Console.Warning("Saving failed! USB packet is larger than 8K, try again later.\n");
-			return -1;
-		}
+		data->size = 0x10000;
 	}
 
 	return 0;
