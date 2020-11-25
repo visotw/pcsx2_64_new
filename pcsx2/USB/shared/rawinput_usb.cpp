@@ -178,6 +178,9 @@ namespace shared
 					free(pRawInput);
 					break;
 				}
+				case WM_ENABLE:
+					skipInput = !wParam;
+					break;
 				case WM_ACTIVATE:
 					Console.WriteLn("******      WM_ACTIVATE        ****** %p %d\n", hWnd, LOWORD(wParam) != WA_INACTIVE);
 					skipInput = LOWORD(wParam) == WA_INACTIVE;
@@ -212,6 +215,10 @@ namespace shared
 
 		int Initialize(void* ptr)
 		{
+			// Reinitialized without USBclose, like when disc swapping
+			if (eatenWndProc)
+				return 1;
+
 			HWND hWnd = reinterpret_cast<HWND>(ptr);
 			if (!InitHid())
 				return 0;
