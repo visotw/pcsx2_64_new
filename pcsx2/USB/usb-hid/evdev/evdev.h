@@ -54,7 +54,7 @@ namespace usb_hid
 			static int Configure(int port, const char* dev_type, HIDType hid_type, void* data);
 
 		protected:
-			static void ReaderThread(void* ptr);
+			void ReaderThread();
 
 			int mHandle;
 
