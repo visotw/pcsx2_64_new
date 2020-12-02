@@ -651,9 +651,9 @@ void USBDoFreezeOut(void* dest)
 
 void USBDoFreezeIn(pxInputStream& infp)
 {
-	freezeData fP = {0, nullptr};
-	if (USBfreeze(FREEZE_SIZE, &fP) != 0)
-		fP.size = 0;
+	freezeData fP = {(int)infp.Length(), nullptr};
+	//if (USBfreeze(FREEZE_SIZE, &fP) != 0)
+	//	fP.size = 0;
 
 	Console.Indent().WriteLn("Loading USB");
 
